@@ -15,7 +15,7 @@ export default {
     app.stack(function Stack({ stack }) {
       const api = new Api(stack, "api", {
         routes: {
-          "GET /": "functions/lambda/main.go",
+          "POST /": "functions/lambda/main.go",
         },
       });
       stack.addOutputs({
