@@ -1,6 +1,8 @@
 import { SSTConfig } from "sst";
 import { Api } from "sst/constructs";
 
+const { BOT_PUBLIC_KEY } = process.env;
+
 export default {
   config(_input) {
     return {
@@ -15,7 +17,14 @@ export default {
     app.stack(function Stack({ stack }) {
       const api = new Api(stack, "api", {
         routes: {
-          "POST /": "functions/lambda/main.go",
+          "POST /": {
+            function: {
+              handler: "functions/lambda/main.go",
+              environment: {
+                BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REEEEEEEEEE"
+              }
+            },
+          },
         },
       });
       stack.addOutputs({
