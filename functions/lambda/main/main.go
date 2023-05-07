@@ -10,8 +10,12 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	asdf "github.com/aws/aws-sdk-go/service/lambda"
 )
 
+// https://mholt.github.io/json-to-go/
 type InteractionBody struct {
 	ApplicationID string `json:"application_id"`
 	ID            string `json:"id"`
@@ -68,6 +72,29 @@ func VerifyInteraction(request events.APIGatewayV2HTTPRequest) bool {
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("ok")
 
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+
+	consumerFn := os.Getenv("CONSUMER_FN")
+	if consumerFn == "" {
+		panic("fn name")
+	}
+
+	// client := asdf.New(sess, &aws.Config{Region: aws.String("us-east-1")})
+	client := asdf.New(sess, &aws.Config{})
+	client.Invoke(&asdf.InvokeInput{
+		FunctionName:   aws.String(consumerFn),
+		InvocationType: aws.String("Event"),
+	})
+
+	fmt.Println("why")
+
+	return events.APIGatewayProxyResponse{
+		Body:       "Hello, World!",
+		StatusCode: 200,
+	}, nil
+
 	var interactionBody InteractionBody
 	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
 		panic("unmarshal")
@@ -87,7 +114,6 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			default:
 				{
 					return events.APIGatewayProxyResponse{
-						// Body:       "Hello, World!",
 						StatusCode: 401,
 					}, nil
 				}
@@ -101,7 +127,6 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			}, nil
 		}
 	}
-
 }
 
 func main() {
