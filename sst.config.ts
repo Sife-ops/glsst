@@ -16,14 +16,14 @@ export default {
     });
     app.stack(function Stack({ stack }) {
       const consumerFn = new Function(stack, "consumerFn", {
-        handler: "functions/consumer/main.go",
+        handler: "functions/bot/consumer/main.go",
       });
 
       const api = new Api(stack, "api", {
         routes: {
-          "POST /": {
+          "POST /bot": {
             function: {
-              handler: "functions/receiver/main.go",
+              handler: "functions/bot/receiver/main.go",
               bind: [consumerFn],
               environment: {
                 BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REEEEEEEEEE",
