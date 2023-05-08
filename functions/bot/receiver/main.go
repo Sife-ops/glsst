@@ -8,16 +8,10 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	lambdaService "github.com/aws/aws-sdk-go/service/lambda"
+	lambdaSvc "github.com/aws/aws-sdk-go/service/lambda"
 )
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-	// todo: global
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
 	var interactionBody botLib.InteractionBody // todo: constructor method?
 	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
 		panic("unmarshal")
@@ -49,8 +43,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			payload := struct{ Body string }{Body: string(bodyBytes)}
 			lambdaPayloadBytes, _ := json.Marshal(payload)
 
-			client := lambdaService.New(sess, &aws.Config{})
-			client.Invoke(&lambdaService.InvokeInput{
+			lib.LambdaCl.Invoke(&lambdaSvc.InvokeInput{
 				FunctionName:   aws.String(lib.GetBotConsumerFn()),
 				InvocationType: aws.String("Event"),
 				Payload:        lambdaPayloadBytes,
