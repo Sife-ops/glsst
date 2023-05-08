@@ -17,7 +17,7 @@ export default {
     app.stack(function Stack({ stack }) {
 
       const consumerFn = new Function(stack, "consumerFn", {
-        handler: "functions/lambda/consumer/consumer.go",
+        handler: "functions/consumer/main.go",
         // bi
       })
 
@@ -25,7 +25,7 @@ export default {
         routes: {
           "POST /": {
             function: {
-              handler: "functions/lambda/main/main.go",
+              handler: "functions/receiver/main.go",
               bind: [consumerFn],
               environment: {
                 BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REEEEEEEEEE",
