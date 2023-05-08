@@ -44,7 +44,8 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			lambdaPayloadBytes, _ := json.Marshal(payload)
 
 			lib.LambdaCl.Invoke(&lambdaSvc.InvokeInput{
-				FunctionName:   aws.String(lib.GetBotConsumerFn()),
+				// FunctionName: aws.String(lib.GetBotConsumerFn()),
+				FunctionName:   aws.String(lib.Env.ConsumerFn),
 				InvocationType: aws.String("Event"),
 				Payload:        lambdaPayloadBytes,
 			})
