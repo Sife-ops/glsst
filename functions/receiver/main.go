@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	asdf "github.com/aws/aws-sdk-go/service/lambda"
+	lambdaService "github.com/aws/aws-sdk-go/service/lambda"
 )
 
 // https://mholt.github.io/json-to-go/
@@ -72,6 +72,11 @@ func VerifyInteraction(request events.APIGatewayV2HTTPRequest) bool {
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("ok")
 
+	var interactionBody InteractionBody
+	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
+		panic("unmarshal")
+	}
+
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -81,24 +86,22 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		panic("fn name")
 	}
 
-	// client := asdf.New(sess, &aws.Config{Region: aws.String("us-east-1")})
-	client := asdf.New(sess, &aws.Config{})
-	client.Invoke(&asdf.InvokeInput{
+	// https://github.com/aws/aws-sdk-go/issues/3385
+	bodyBytes, _ := json.Marshal(interactionBody) // todo: pass request.Body directly
+	payload := struct{ Body string }{Body: string(bodyBytes)}
+	lambdaPayloadBytes, _ := json.Marshal(payload)
+
+	client := lambdaService.New(sess, &aws.Config{})
+	client.Invoke(&lambdaService.InvokeInput{
 		FunctionName:   aws.String(consumerFn),
 		InvocationType: aws.String("Event"),
+		Payload:        lambdaPayloadBytes,
 	})
-
-	fmt.Println("why")
 
 	return events.APIGatewayProxyResponse{
 		Body:       "Hello, World!",
 		StatusCode: 200,
 	}, nil
-
-	var interactionBody InteractionBody
-	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
-		panic("unmarshal")
-	}
 
 	switch interactionBody.Type {
 	case 1:

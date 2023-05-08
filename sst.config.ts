@@ -15,11 +15,9 @@ export default {
       runtime: "go1.x",
     });
     app.stack(function Stack({ stack }) {
-
       const consumerFn = new Function(stack, "consumerFn", {
         handler: "functions/consumer/main.go",
-        // bi
-      })
+      });
 
       const api = new Api(stack, "api", {
         routes: {
@@ -29,8 +27,8 @@ export default {
               bind: [consumerFn],
               environment: {
                 BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REEEEEEEEEE",
-                CONSUMER_FN: consumerFn.functionName
-              }
+                CONSUMER_FN: consumerFn.functionName,
+              },
             },
           },
         },
