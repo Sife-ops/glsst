@@ -59,8 +59,11 @@ export default {
       });
 
       const consumerFn = new Function(stack, "consumerFn", {
-        bind: [table],
         handler: "functions/bot/consumer/main.go",
+        bind: [table],
+        environment: {
+          TABLE_NAME: table.tableName
+        }
       });
 
       const api = new Api(stack, "api", {

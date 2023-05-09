@@ -1,18 +1,23 @@
 package lib
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/lambda"
+	"context"
+	"log"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/lambda"
 )
 
-var Sess *session.Session
-var LambdaCl *lambda.Lambda
+var LambdaCl *lambda.Client
+var DdbCl *dynamodb.Client
 
 func init() {
-	Sess = session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	})) // todo: ???
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
 
-	LambdaCl = lambda.New(Sess, &aws.Config{})
+	LambdaCl = lambda.NewFromConfig(cfg)
+	DdbCl = dynamodb.NewFromConfig(cfg)
 }

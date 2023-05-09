@@ -1,18 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
-	botLib "glsst/functions/bot/lib"
 	"glsst/functions/lib"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	lambdaSvc "github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	lambdaSvc "github.com/aws/aws-sdk-go-v2/service/lambda"
 )
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-	var interactionBody botLib.InteractionBody // todo: constructor method?
+	var interactionBody lib.InteractionBody // todo: constructor method?
 	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
 		panic("unmarshal")
 	}
@@ -20,7 +20,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	switch interactionBody.Type {
 	case 1:
 		{
-			switch botLib.VerifyInteraction(request) {
+			switch lib.VerifyInteraction(request) {
 			case true:
 				{
 					return events.APIGatewayProxyResponse{
@@ -41,13 +41,12 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			// https://github.com/aws/aws-sdk-go/issues/3385
 			bodyBytes, _ := json.Marshal(interactionBody) // todo: pass request.Body directly
 			payload := struct{ Body string }{Body: string(bodyBytes)}
-			lambdaPayloadBytes, _ := json.Marshal(payload)
+			payloadBytes, _ := json.Marshal(payload)
 
-			lib.LambdaCl.Invoke(&lambdaSvc.InvokeInput{
-				// FunctionName: aws.String(lib.GetBotConsumerFn()),
+			lib.LambdaCl.Invoke(context.TODO(), &lambdaSvc.InvokeInput{
 				FunctionName:   aws.String(lib.Env.ConsumerFn),
-				InvocationType: aws.String("Event"),
-				Payload:        lambdaPayloadBytes,
+				InvocationType: "Event",
+				Payload:        payloadBytes,
 			})
 
 			return events.APIGatewayProxyResponse{

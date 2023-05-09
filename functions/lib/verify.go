@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
-	"glsst/functions/lib"
 
 	"github.com/aws/aws-lambda-go/events"
 )
 
 // https://github.com/bwmarrin/discordgo/blob/v0.27.1/interactions.go#L572
 func VerifyInteraction(request events.APIGatewayV2HTTPRequest) bool {
-	key, err := hex.DecodeString(lib.Env.BotPk)
+	key, err := hex.DecodeString(Env.BotPk)
 	if err != nil {
 		return false
 	}
