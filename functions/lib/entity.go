@@ -3,11 +3,11 @@ package lib
 // https://mholt.github.io/json-to-go/
 
 type User struct {
-	UserId           string `json:"id" ddb:"pk,sk,gsi1pk,gsi1sk"`
+	UserId           string `json:"id" ddb:"pk,sk,userid"`
 	Username         string `json:"username" ddb:"username"`
 	Discriminator    string `json:"discriminator" ddb:"discriminator"`
-	DisplayName      string `json:"display_name" ddb:"displayName"`
-	GlobalName       string `json:"global_name" ddb:"globalName"`
+	DisplayName      string `json:"display_name" ddb:"displayname"`
+	GlobalName       string `json:"global_name" ddb:"globalname"`
 	Avatar           string `json:"avatar" ddb:"avatar"`
 	AvatarDecoration any    `json:"avatar_decoration"`
 	PublicFlags      int    `json:"public_flags"`
