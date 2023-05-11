@@ -12,7 +12,7 @@ import (
 )
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-	var interactionBody lib.InteractionBody // todo: constructor method?
+	var interactionBody lib.InteractionBody
 	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
 		panic("unmarshal")
 	}
@@ -49,8 +49,22 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 				Payload:        payloadBytes,
 			})
 
+			ir := lib.InteractionResponse{
+				Type: 4,
+				Data: lib.Data{
+					Content: "ok",
+				},
+			}
+			irj, err := json.Marshal(ir)
+			if err != nil {
+				panic(err)
+			}
+
 			return events.APIGatewayProxyResponse{
-				Body:       "Hello, World! Your yddidtiyti request was received at OK? " + request.RequestContext.Time + ".",
+				Body: string(irj),
+				Headers: map[string]string{
+					"Content-Type": "application/json",
+				},
 				StatusCode: 200,
 			}, nil
 		}

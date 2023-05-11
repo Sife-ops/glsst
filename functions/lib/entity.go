@@ -18,12 +18,16 @@ type User struct {
 	PublicFlags      int    `json:"public_flags" dynamodbav:"omitempty"`
 }
 
+type Member struct {
+	User User `json:"user"`
+}
+
 type InteractionBody struct {
 	ApplicationID string `json:"application_id"`
 	ID            string `json:"id"`
 	Token         string `json:"token"`
 	Type          int    `json:"type"`
-	User          User   `json:"user"`
+	Member        Member `json:"member"`
 	Version       int    `json:"version"`
 }
 
@@ -39,4 +43,13 @@ type Prediction struct {
 	Condition    string `json:"condition" dynamodbav:"condition"`
 	Verdict      string `json:"verdict" dynamodbav:"verdict"`
 	CreatedAt    string `json:"createdat" dynamodbav:"createdat"`
+}
+
+type Data struct {
+	Content string `json:"content"`
+}
+
+type InteractionResponse struct {
+	Type int `json:"type"`
+	Data Data
 }
