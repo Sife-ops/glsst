@@ -12,8 +12,17 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+type IndexName string
+
+const Primary IndexName = "primary"
+
+type Field struct {
+	Struct   string
+	DynamoDB string
+}
+
 type Key struct {
-	Field     string
+	Field     Field
 	Composite []string
 }
 
@@ -33,7 +42,7 @@ type Attribute struct {
 type EntitySchema struct {
 	Service    string
 	Entity     string
-	Indexes    map[string]Index
+	Indexes    map[IndexName]Index
 	Attributes map[string]Attribute
 }
 
@@ -58,7 +67,7 @@ func EntityToMap(e Entity) map[string]types.AttributeValue {
 			f := reflect.Indirect(r).FieldByName(c)
 			pkb.WriteString(f.String())
 		}
-		m[index.PartitionKey.Field] = &types.AttributeValueMemberS{Value: pkb.String()}
+		m[index.PartitionKey.Field.DynamoDB] = &types.AttributeValueMemberS{Value: pkb.String()}
 
 		// sort key
 		var skb bytes.Buffer
@@ -71,18 +80,44 @@ func EntityToMap(e Entity) map[string]types.AttributeValue {
 				skb.WriteString(f.String())
 			}
 		}
-		m[index.SortKey.Field] = &types.AttributeValueMemberS{Value: skb.String()}
+		m[index.SortKey.Field.DynamoDB] = &types.AttributeValueMemberS{Value: skb.String()}
 	}
 
 	return m
 }
 
-func Put(e Entity) *dynamodb.PutItemOutput {
-	out, err := DdbCl.PutItem(context.TODO(), &dynamodb.PutItemInput{
+func BaseQueryInput() *dynamodb.QueryInput {
+	return &dynamodb.QueryInput{
 		TableName: aws.String(GetTableName()),
-		Item:      EntityToMap(e),
-	})
+	}
+}
 
+func Query(e Entity, i ...IndexName) *dynamodb.QueryOutput {
+	ddbq := BaseQueryInput()
+
+	var ii IndexName
+	switch len(i) > 0 {
+	case true:
+		ii = i[0]
+	default:
+		ii = Primary
+	}
+	if ii != Primary {
+		ddbq.IndexName = aws.String(string(ii))
+	}
+	pk := e.GetEntitySchema().Indexes[ii].PartitionKey.Field
+	sk := e.GetEntitySchema().Indexes[ii].SortKey.Field
+	ddbq.KeyConditionExpression = aws.String(pk.DynamoDB + " = :" + pk.DynamoDB + " and " + sk.DynamoDB + " = :" + sk.DynamoDB)
+
+	m := EntityToMap(e)
+	ddbq.ExpressionAttributeValues = map[string]types.AttributeValue{
+		":" + pk.DynamoDB: m[pk.DynamoDB],
+		":" + sk.DynamoDB: m[sk.DynamoDB],
+	}
+	// 	// ExpressionAttributeNames: map[string]string{
+	// 	// },
+
+	out, err := DdbCl.Query(context.TODO(), ddbq)
 	if err != nil {
 		panic(err)
 	}
@@ -90,15 +125,10 @@ func Put(e Entity) *dynamodb.PutItemOutput {
 	return out
 }
 
-func Query(e Entity) *dynamodb.QueryOutput {
-	out, err := DdbCl.Query(context.TODO(), &dynamodb.QueryInput{
-		TableName:              aws.String(GetTableName()),
-		KeyConditionExpression: aws.String("pk = :pk"),
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":pk": &types.AttributeValueMemberS{Value: "$Glsst#User#userid_squeex#username_bbb"},
-		},
-		// ExpressionAttributeNames: map[string]string{
-		// },
+func Put(e Entity) *dynamodb.PutItemOutput {
+	out, err := DdbCl.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String(GetTableName()),
+		Item:      EntityToMap(e),
 	})
 
 	if err != nil {

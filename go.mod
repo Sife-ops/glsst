@@ -12,6 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/lambda v1.34.1
 	github.com/aws/constructs-go/constructs/v10 v10.1.91
 	github.com/aws/jsii-runtime-go v1.65.1
+	github.com/davecgh/go-spew v1.1.1
 )
 
 require (

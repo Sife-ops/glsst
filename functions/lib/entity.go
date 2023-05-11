@@ -28,6 +28,12 @@ type InteractionBody struct {
 }
 
 type Prediction struct {
+	// todo: delete?
+	Pk     string `dynamodbav:"pk"`
+	Sk     string `dynamodbav:"sk"`
+	Gsi1pk string `dynamodbav:"gsi1pk"`
+	Gsi1sk string `dynamodbav:"gsi1sk"`
+
 	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
 	UserId       string `json:"userid" dynamodbav:"userid"`
 	Condition    string `json:"condition" dynamodbav:"condition"`
