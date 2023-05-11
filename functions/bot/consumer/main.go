@@ -6,26 +6,24 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	// "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	// "github.com/davecgh/go-spew/spew"
 )
 
 func Handler(request events.APIGatewayProxyRequest) error {
 	fmt.Println("consumer")
 
 	u := lib.User{
-		UserId:        "squeex",
+		UserId:        "toad",
 		Username:      "bbb",
 		Discriminator: "ccc",
-		// DisplayName:   "ddd",
-		GlobalName: "eee",
-		Avatar:     "fff",
+		DisplayName:   "ddd",
+		GlobalName:    "eee",
+		Avatar:        "fff",
 	}
+	fmt.Println(u)
 
 	o := lib.Put(u)
-	// fmt.Println(u)
-
-	// out := lib.I2m(u)
-	// out := lib.Pe(u)
-
 	fmt.Println(o)
 
 	return nil

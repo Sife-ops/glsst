@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
@@ -21,6 +22,7 @@ type Index struct {
 	SortKey      Key
 }
 
+// todo: implement default values?
 type Attribute struct {
 	Field    string
 	Type     string
@@ -39,120 +41,64 @@ type Entity interface {
 	GetEntitySchema() EntitySchema
 }
 
-// todo: can't use pointer???
-func (u User) GetEntitySchema() EntitySchema {
-	return EntitySchema{
-		Service: "Glsst",
-		Entity:  "User",
-		Indexes: map[string]Index{
-			"primary": {
-				PartitionKey: Key{
-					Field:     "pk",
-					Composite: []string{"UserId", "Username"}, // todo: composite array
-				},
-				SortKey: Key{
-					Field:     "sk",
-					Composite: []string{},
-				},
-			},
-			"gsi1": {
-				PartitionKey: Key{
-					Field:     "gsi1pk",
-					Composite: []string{"UserId"},
-				},
-				SortKey: Key{
-					Field:     "gsi1sk",
-					Composite: []string{},
-				},
-			},
-		},
-		Attributes: map[string]Attribute{
-			"UserId": {
-				Field: "userid",
-				Type:  "string",
-			},
-			"Username": {
-				Field: "username",
-				Type:  "string",
-			},
-			"Discriminator": {
-				Field: "discriminator",
-				Type:  "string",
-			},
-			"DisplayName": {
-				Field: "displayname",
-				Type:  "string",
-			},
-		},
-	}
-}
-
 func EntityToMap(e Entity) map[string]types.AttributeValue {
-	// 1) map of struct key/val
-	// 2) build indexes
-	// 3) build attributes
-
-	t := reflect.TypeOf(e)
-	v := reflect.ValueOf(e)
-
-	// 1) map of struct key/val
-	m := map[string]reflect.Value{}
-	for i := 0; i < v.NumField(); i++ {
-		tf := t.Field(i)
-		vf := v.Field(i)
-		m[tf.Name] = vf
+	m, err := attributevalue.MarshalMap(e)
+	if err != nil {
+		panic(err)
 	}
 
-	mm := map[string]types.AttributeValue{}
-	mm["__entity"] = &types.AttributeValueMemberS{Value: e.GetEntitySchema().Entity}
-
-	// 2) build indexes
+	// indexes
+	r := reflect.ValueOf(e)
 	for _, index := range e.GetEntitySchema().Indexes {
+		// partition key
 		var pkb bytes.Buffer
 		pkb.WriteString("$" + e.GetEntitySchema().Service + "#" + e.GetEntitySchema().Entity)
-
 		for _, c := range index.PartitionKey.Composite {
 			pkb.WriteString("#" + strings.ToLower(c) + "_") // todo: why tolower?
-			pkb.WriteString(reflect.ValueOf(m[c].Interface()).String())
+			f := reflect.Indirect(r).FieldByName(c)
+			pkb.WriteString(f.String())
 		}
-		mm[index.PartitionKey.Field] = &types.AttributeValueMemberS{Value: pkb.String()}
+		m[index.PartitionKey.Field] = &types.AttributeValueMemberS{Value: pkb.String()}
 
+		// sort key
 		var skb bytes.Buffer
 		skb.WriteString("$" + e.GetEntitySchema().Entity)
-
 		skc := index.SortKey.Composite
 		if len(skc) > 0 {
 			for _, c := range index.SortKey.Composite {
 				skb.WriteString("#" + strings.ToLower(c) + "_")
-				skb.WriteString(reflect.ValueOf(m[c].Interface()).String())
+				f := reflect.Indirect(r).FieldByName(c)
+				skb.WriteString(f.String())
 			}
 		}
-		mm[index.SortKey.Field] = &types.AttributeValueMemberS{Value: skb.String()}
+		m[index.SortKey.Field] = &types.AttributeValueMemberS{Value: skb.String()}
 	}
 
-	// 3) build attributes
-	// todo: more types
-	// todo: required attributes
-	for attrk, attrv := range e.GetEntitySchema().Attributes {
-		v := reflect.ValueOf(m[attrk].Interface())
-		af := attrv.Field
-		switch attrv.Type {
-		case "string":
-			mm[af] = &types.AttributeValueMemberS{Value: v.String()}
-		case "boolean":
-			mm[af] = &types.AttributeValueMemberBOOL{Value: v.Bool()}
-		default:
-			panic("invalid type: " + attrv.Type)
-		}
-	}
-
-	return mm
+	return m
 }
 
 func Put(e Entity) *dynamodb.PutItemOutput {
 	out, err := DdbCl.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(GetTableName()),
 		Item:      EntityToMap(e),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	return out
+}
+
+func Query(e Entity) *dynamodb.QueryOutput {
+	out, err := DdbCl.Query(context.TODO(), &dynamodb.QueryInput{
+		TableName:              aws.String(GetTableName()),
+		KeyConditionExpression: aws.String("pk = :pk"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":pk": &types.AttributeValueMemberS{Value: "$Glsst#User#userid_squeex#username_bbb"},
+		},
+		// ExpressionAttributeNames: map[string]string{
+		// },
 	})
 
 	if err != nil {
