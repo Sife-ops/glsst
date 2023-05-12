@@ -89,7 +89,7 @@ func BaseQueryInput() *dynamodb.QueryInput {
 	}
 }
 
-func Query(e Entity, i ...IndexName) *dynamodb.QueryOutput {
+func Query(e Entity, i ...IndexName) (*dynamodb.QueryOutput, error) {
 	ddbq := BaseQueryInput()
 
 	var ii IndexName
@@ -114,23 +114,12 @@ func Query(e Entity, i ...IndexName) *dynamodb.QueryOutput {
 	// 	// ExpressionAttributeNames: map[string]string{
 	// 	// },
 
-	out, err := DdbCl.Query(context.TODO(), ddbq)
-	if err != nil {
-		panic(err)
-	}
-
-	return out
+	return DdbCl.Query(context.TODO(), ddbq)
 }
 
-func Put(e Entity) *dynamodb.PutItemOutput {
-	out, err := DdbCl.PutItem(context.TODO(), &dynamodb.PutItemInput{
+func Put(e Entity) (*dynamodb.PutItemOutput, error) {
+	return DdbCl.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(GetTableName()),
 		Item:      EntityToMap(e),
 	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return out
 }

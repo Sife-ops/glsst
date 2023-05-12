@@ -1,0 +1,13 @@
+{
+  "name": "@glsst/functions",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "@faker-js/faker": "^8.0.0",
+    "aws-sdk": "^2.1296.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.109"
+  }
+}

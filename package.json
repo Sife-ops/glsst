@@ -18,5 +18,7 @@
     "typescript": "^5.0.4",
     "@tsconfig/node16": "^1.0.3"
   },
-  "workspaces": []
+  "workspaces": [
+    "workspaces/*"
+  ]
 }

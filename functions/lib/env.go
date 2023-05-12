@@ -22,4 +22,5 @@ func getEnvFac(s string) func() string {
 var GetBotAppId = getEnvFac("BOT_APP_ID")
 var GetBotPk = getEnvFac("BOT_PUBLIC_KEY")
 var GetConsumerFn = getEnvFac("CONSUMER_FN")
+var GetMnemonicFn = getEnvFac("MNEMONIC_FN")
 var GetTableName = getEnvFac("TABLE_NAME")

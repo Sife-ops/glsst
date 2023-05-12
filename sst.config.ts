@@ -58,13 +58,19 @@ export default {
         },
       });
 
+      const mnemonicFn = new Function(stack, "mnemonicFn", {
+        handler: "workspaces/functions/mnemonic.handler",
+        runtime: "nodejs",
+      });
+
       const consumerFn = new Function(stack, "consumerFn", {
         handler: "functions/bot/consumer/main.go",
-        bind: [table],
+        bind: [table, mnemonicFn],
         environment: {
           BOT_APP_ID: BOT_APP_ID || "REE",
           BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
           TABLE_NAME: table.tableName,
+          MNEMONIC_FN: mnemonicFn.functionName,
         },
       });
 
