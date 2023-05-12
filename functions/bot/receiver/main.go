@@ -41,9 +41,9 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 			r := lib.ResponseBody{
 				Type: 5,
-				Data: lib.ResponseData{
-					Flags: 64,
-				},
+				// Data: lib.ResponseData{
+				// 	Flags: 64,
+				// },
 			}
 			rj, err := json.Marshal(r)
 			if err != nil {

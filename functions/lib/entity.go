@@ -2,15 +2,14 @@ package lib
 
 // https://mholt.github.io/json-to-go/
 
-type User struct {
-	UserId           string `json:"id" dynamodbav:"userid"`
-	Username         string `json:"username" dynamodbav:"username"`
-	Discriminator    string `json:"discriminator" dynamodbav:"discriminator"`
-	DisplayName      string `json:"display_name" dynamodbav:"displayname"`
-	GlobalName       string `json:"global_name" dynamodbav:"globalname"`
-	Avatar           string `json:"avatar" dynamodbav:"avatar"`
-	AvatarDecoration any    `json:"avatar_decoration" dynamodbav:"omitempty"`
-	PublicFlags      int    `json:"public_flags" dynamodbav:"omitempty"`
+type InteractionBody struct {
+	ApplicationID string          `json:"application_id"`
+	ID            string          `json:"id"`
+	Token         string          `json:"token"`
+	Type          int             `json:"type"`
+	Version       int             `json:"version"`
+	Member        Member          `json:"member"`
+	Data          InteractionData `json:"data"`
 }
 
 type Member struct {
@@ -31,14 +30,17 @@ type InteractionData struct {
 	Options []Option `json:"options"`
 }
 
-type InteractionBody struct {
-	ApplicationID string          `json:"application_id"`
-	ID            string          `json:"id"`
-	Token         string          `json:"token"`
-	Type          int             `json:"type"`
-	Version       int             `json:"version"`
-	Member        Member          `json:"member"`
-	Data          InteractionData `json:"data"`
+////////////////////////////////////////////////////////////////////////////////
+
+type User struct {
+	UserId           string `json:"id" dynamodbav:"userid"`
+	Username         string `json:"username" dynamodbav:"username"`
+	Discriminator    string `json:"discriminator" dynamodbav:"discriminator"`
+	DisplayName      string `json:"display_name" dynamodbav:"displayname"`
+	GlobalName       string `json:"global_name" dynamodbav:"globalname"`
+	Avatar           string `json:"avatar" dynamodbav:"avatar"`
+	AvatarDecoration any    `json:"avatar_decoration" dynamodbav:"omitempty"`
+	PublicFlags      int    `json:"public_flags" dynamodbav:"omitempty"`
 }
 
 type Prediction struct {
@@ -55,12 +57,28 @@ type Voter struct {
 	Verdict      bool   `json:"verdict" dynamodbav:"verdict"`
 }
 
-type ResponseData struct {
-	Flags   int    `json:"flags"`
-	Content string `json:"content"`
-}
+////////////////////////////////////////////////////////////////////////////////
 
 type ResponseBody struct {
 	Type int          `json:"type"`
 	Data ResponseData `json:"data"` // todo: embed data
+}
+
+type ResponseData struct {
+	Flags   int     `json:"flags"`
+	Content string  `json:"content"`
+	Embeds  []Embed `json:"embeds"`
+}
+
+type Embed struct {
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Color       int     `json:"color"`
+	Fields      []Field `json:"fields"`
+}
+
+type Field struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Inline bool   `json:"inline"`
 }

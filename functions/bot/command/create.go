@@ -2,6 +2,7 @@ package command
 
 import (
 	"encoding/json"
+	"fmt"
 	"glsst/functions/lib"
 	"time"
 )
@@ -24,9 +25,25 @@ func Create(ib lib.InteractionBody) error {
 		return err
 	}
 
-	// todo: embeds, info...
 	r := lib.ResponseData{
-		Content: "create lmao",
+		Embeds: []lib.Embed{
+			{
+				Title:       "New Prediction",
+				Description: condition.Value,
+				Fields: []lib.Field{
+					{
+						Name:   "By",
+						Value:  fmt.Sprintf("<@%s>", ib.Member.User.UserId),
+						Inline: false,
+					},
+					{
+						Name:   "ID",
+						Value:  m,
+						Inline: false,
+					},
+				},
+			},
+		},
 	}
 	rj, err := json.Marshal(r)
 	if err != nil {
