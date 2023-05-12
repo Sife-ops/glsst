@@ -10,33 +10,21 @@ func (u User) GetEntitySchema() EntitySchema {
 		Indexes: map[IndexName]Index{
 			Primary: {
 				PartitionKey: Key{
-					Field: Field{
-						Struct:   "Pk",
-						DynamoDB: "pk",
-					},
+					Field:     "pk",
 					Composite: []string{"UserId"},
 				},
 				SortKey: Key{
-					Field: Field{
-						Struct:   "Sk",
-						DynamoDB: "sk",
-					},
+					Field:     "sk",
 					Composite: []string{},
 				},
 			},
 			Gsi1: {
 				PartitionKey: Key{
-					Field: Field{
-						Struct:   "Gsi1pk",
-						DynamoDB: "gsi1pk",
-					},
+					Field:     "gsi1pk",
 					Composite: []string{"UserId"},
 				},
 				SortKey: Key{
-					Field: Field{
-						Struct:   "Gsi1sk",
-						DynamoDB: "gsi1sk",
-					},
+					Field:     "gsi1sk",
 					Composite: []string{},
 				},
 			},
@@ -51,33 +39,21 @@ func (p Prediction) GetEntitySchema() EntitySchema {
 		Indexes: map[IndexName]Index{
 			Primary: {
 				PartitionKey: Key{
-					Field: Field{
-						Struct:   "Pk",
-						DynamoDB: "pk",
-					},
+					Field:     "pk",
 					Composite: []string{"PredictionId"},
 				},
 				SortKey: Key{
-					Field: Field{
-						Struct:   "Sk",
-						DynamoDB: "sk",
-					},
+					Field:     "sk",
 					Composite: []string{},
 				},
 			},
 			Gsi1: {
 				PartitionKey: Key{
-					Field: Field{
-						Struct:   "Gsi1pk",
-						DynamoDB: "gsi1pk",
-					},
+					Field:     "gsi1pk",
 					Composite: []string{"UserId"},
 				},
 				SortKey: Key{
-					Field: Field{
-						Struct:   "Gsi1sk",
-						DynamoDB: "gsi1sk",
-					},
+					Field:     "gsi1sk",
 					Composite: []string{},
 				},
 			},

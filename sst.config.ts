@@ -1,7 +1,7 @@
 import { SSTConfig } from "sst";
 import { Api, Function, Table } from "sst/constructs";
 
-const { BOT_PUBLIC_KEY } = process.env;
+const { BOT_PUBLIC_KEY, BOT_APP_ID } = process.env;
 
 export default {
   config(_input) {
@@ -62,8 +62,10 @@ export default {
         handler: "functions/bot/consumer/main.go",
         bind: [table],
         environment: {
-          TABLE_NAME: table.tableName
-        }
+          BOT_APP_ID: BOT_APP_ID || "REE",
+          BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
+          TABLE_NAME: table.tableName,
+        },
       });
 
       const api = new Api(stack, "api", {
@@ -73,7 +75,7 @@ export default {
               handler: "functions/bot/receiver/main.go",
               bind: [consumerFn, table],
               environment: {
-                BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REEEEEEEEEE",
+                BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
                 CONSUMER_FN: consumerFn.functionName,
               },
             },

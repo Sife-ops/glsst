@@ -16,13 +16,8 @@ type IndexName string
 
 const Primary IndexName = "primary"
 
-type Field struct {
-	Struct   string
-	DynamoDB string
-}
-
 type Key struct {
-	Field     Field
+	Field     string
 	Composite []string
 }
 
@@ -67,7 +62,7 @@ func EntityToMap(e Entity) map[string]types.AttributeValue {
 			f := reflect.Indirect(r).FieldByName(c)
 			pkb.WriteString(f.String())
 		}
-		m[index.PartitionKey.Field.DynamoDB] = &types.AttributeValueMemberS{Value: pkb.String()}
+		m[index.PartitionKey.Field] = &types.AttributeValueMemberS{Value: pkb.String()}
 
 		// sort key
 		var skb bytes.Buffer
@@ -80,7 +75,7 @@ func EntityToMap(e Entity) map[string]types.AttributeValue {
 				skb.WriteString(f.String())
 			}
 		}
-		m[index.SortKey.Field.DynamoDB] = &types.AttributeValueMemberS{Value: skb.String()}
+		m[index.SortKey.Field] = &types.AttributeValueMemberS{Value: skb.String()}
 	}
 
 	return m
@@ -107,12 +102,12 @@ func Query(e Entity, i ...IndexName) *dynamodb.QueryOutput {
 	}
 	pk := e.GetEntitySchema().Indexes[ii].PartitionKey.Field
 	sk := e.GetEntitySchema().Indexes[ii].SortKey.Field
-	ddbq.KeyConditionExpression = aws.String(pk.DynamoDB + " = :" + pk.DynamoDB + " and " + sk.DynamoDB + " = :" + sk.DynamoDB)
+	ddbq.KeyConditionExpression = aws.String(pk + " = :" + pk + " and " + sk + " = :" + sk)
 
 	m := EntityToMap(e)
 	ddbq.ExpressionAttributeValues = map[string]types.AttributeValue{
-		":" + pk.DynamoDB: m[pk.DynamoDB],
-		":" + sk.DynamoDB: m[sk.DynamoDB],
+		":" + pk: m[pk],
+		":" + sk: m[sk],
 	}
 	// 	// ExpressionAttributeNames: map[string]string{
 	// 	// },

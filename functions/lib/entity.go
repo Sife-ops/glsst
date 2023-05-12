@@ -3,10 +3,10 @@ package lib
 // https://mholt.github.io/json-to-go/
 
 type User struct {
-	Pk     string `dynamodbav:"pk"`
-	Sk     string `dynamodbav:"sk"`
-	Gsi1pk string `dynamodbav:"gsi1pk"`
-	Gsi1sk string `dynamodbav:"gsi1sk"`
+	// Pk     string `dynamodbav:"pk"`
+	// Sk     string `dynamodbav:"sk"`
+	// Gsi1pk string `dynamodbav:"gsi1pk"`
+	// Gsi1sk string `dynamodbav:"gsi1sk"`
 
 	UserId           string `json:"id" dynamodbav:"userid"`
 	Username         string `json:"username" dynamodbav:"username"`
@@ -22,21 +22,35 @@ type Member struct {
 	User User `json:"user"`
 }
 
+type Option struct {
+	Name  string `json:"name"`
+	Type  int    `json:"type"`
+	Value string `json:"value"`
+}
+
+type InteractionData struct {
+	GuildId string   `json:"guild_id"`
+	Id      string   `json:"id"`
+	Name    string   `json:"name"`
+	Type    int      `json:"type"`
+	Options []Option `json:"options"`
+}
+
 type InteractionBody struct {
-	ApplicationID string `json:"application_id"`
-	ID            string `json:"id"`
-	Token         string `json:"token"`
-	Type          int    `json:"type"`
-	Member        Member `json:"member"`
-	Version       int    `json:"version"`
+	ApplicationID string          `json:"application_id"`
+	ID            string          `json:"id"`
+	Token         string          `json:"token"`
+	Type          int             `json:"type"`
+	Version       int             `json:"version"`
+	Member        Member          `json:"member"`
+	Data          InteractionData `json:"data"`
 }
 
 type Prediction struct {
-	// todo: delete?
-	Pk     string `dynamodbav:"pk"`
-	Sk     string `dynamodbav:"sk"`
-	Gsi1pk string `dynamodbav:"gsi1pk"`
-	Gsi1sk string `dynamodbav:"gsi1sk"`
+	// Pk     string `dynamodbav:"pk"` // todo: delete?
+	// Sk     string `dynamodbav:"sk"`
+	// Gsi1pk string `dynamodbav:"gsi1pk"`
+	// Gsi1sk string `dynamodbav:"gsi1sk"`
 
 	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
 	UserId       string `json:"userid" dynamodbav:"userid"`
@@ -45,11 +59,12 @@ type Prediction struct {
 	CreatedAt    string `json:"createdat" dynamodbav:"createdat"`
 }
 
-type Data struct {
+type ResponseData struct {
+	Flags   int    `json:"flags"`
 	Content string `json:"content"`
 }
 
-type InteractionResponse struct {
-	Type int `json:"type"`
-	Data Data
+type ResponseBody struct {
+	Type int          `json:"type"`
+	Data ResponseData `json:"data"` // todo: embed data
 }

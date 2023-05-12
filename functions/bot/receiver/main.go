@@ -49,19 +49,20 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 				Payload:        payloadBytes,
 			})
 
-			ir := lib.InteractionResponse{
-				Type: 4,
-				Data: lib.Data{
-					Content: "ok",
+			r := lib.ResponseBody{
+				Type: 5,
+				Data: lib.ResponseData{
+					// Content: "ok",
+					Flags: 64,
 				},
 			}
-			irj, err := json.Marshal(ir)
+			rj, err := json.Marshal(r)
 			if err != nil {
 				panic(err)
 			}
 
 			return events.APIGatewayProxyResponse{
-				Body: string(irj),
+				Body: string(rj),
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
