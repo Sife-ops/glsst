@@ -4,21 +4,6 @@ import (
 	"os"
 )
 
-// todo: delete!
-type env struct {
-	BotPk      string
-	ConsumerFn string
-}
-
-var Env *env
-
-func init() {
-	Env = &env{
-		ConsumerFn: os.Getenv("CONSUMER_FN"),
-		BotPk:      os.Getenv("BOT_PUBLIC_KEY"),
-	}
-}
-
 func getEnvFac(s string) func() string {
 	return func() string {
 		a, b := os.LookupEnv(s)

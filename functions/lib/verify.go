@@ -10,7 +10,7 @@ import (
 
 // https://github.com/bwmarrin/discordgo/blob/v0.27.1/interactions.go#L572
 func VerifyInteraction(request events.APIGatewayV2HTTPRequest) bool {
-	key, err := hex.DecodeString(Env.BotPk)
+	key, err := hex.DecodeString(GetBotPk())
 	if err != nil {
 		return false
 	}

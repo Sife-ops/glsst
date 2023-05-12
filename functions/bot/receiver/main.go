@@ -44,7 +44,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			payloadBytes, _ := json.Marshal(payload)
 
 			lib.LambdaCl.Invoke(context.TODO(), &lambdaSvc.InvokeInput{
-				FunctionName:   aws.String(lib.Env.ConsumerFn),
+				FunctionName:   aws.String(lib.GetConsumerFn()),
 				InvocationType: "Event",
 				Payload:        payloadBytes,
 			})
@@ -52,7 +52,6 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			r := lib.ResponseBody{
 				Type: 5,
 				Data: lib.ResponseData{
-					// Content: "ok",
 					Flags: 64,
 				},
 			}
