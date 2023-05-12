@@ -74,15 +74,15 @@ func (p Prediction) GetEntitySchema() EntitySchema {
 	}
 }
 
-func (j Judge) GetEntitySchema() EntitySchema {
+func (v Voter) GetEntitySchema() EntitySchema {
 	return EntitySchema{
 		Service: "Glsst",
-		Entity:  "Judge",
+		Entity:  "Voter",
 		Indexes: map[IndexName]Index{
 			Primary: {
 				PartitionKey: Key{
 					Field:     "pk",
-					Composite: []string{"JudgeId"},
+					Composite: []string{"VoterId"},
 				},
 				SortKey: Key{
 					Field:     "sk",

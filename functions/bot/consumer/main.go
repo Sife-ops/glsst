@@ -20,32 +20,11 @@ func Handler(request events.APIGatewayProxyRequest) error {
 		return command.Foo(ib)
 	case "create":
 		return command.Create(ib)
-	default:
-		// todo: new error
+		// case "vote":
+		// case "cancel":
+		// default:
+		// 	todo: new error
 	}
-
-	// u := lib.User{
-	// 	UserId:        "8732894082384932948239",
-	// 	Username:      "wyatt",
-	// 	Discriminator: "1234",
-	// 	// DisplayName:   "ddd",
-	// 	// GlobalName:    "eee",
-	// 	Avatar: "89379472974328904823",
-	// }
-	// fmt.Println(u)
-
-	// o := lib.Put(u)
-	// fmt.Println(o)
-
-	// qq := lib.Query(lib.User{
-	// 	UserId: "8732894082384932948239",
-	// })
-	// var uu []lib.User
-	// err := attributevalue.UnmarshalListOfMaps(qq.Items, &uu)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// spew.Dump(uu)
 
 	return nil
 }

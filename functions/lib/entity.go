@@ -3,13 +3,6 @@ package lib
 // https://mholt.github.io/json-to-go/
 
 type User struct {
-	// Pk     string `dynamodbav:"pk"`
-	// Sk     string `dynamodbav:"sk"`
-	// Gsi1pk string `dynamodbav:"gsi1pk"`
-	// Gsi1sk string `dynamodbav:"gsi1sk"`
-	// Gsi2pk string `dynamodbav:"gsi2pk"`
-	// Gsi2sk string `dynamodbav:"gsi2sk"`
-
 	UserId           string `json:"id" dynamodbav:"userid"`
 	Username         string `json:"username" dynamodbav:"username"`
 	Discriminator    string `json:"discriminator" dynamodbav:"discriminator"`
@@ -49,26 +42,17 @@ type InteractionBody struct {
 }
 
 type Prediction struct {
-	PredictionId string  `json:"predictionid" dynamodbav:"predictionid"`
-	UserId       string  `json:"userid" dynamodbav:"userid"`
-	Condition    string  `json:"condition" dynamodbav:"condition"`
-	Verdict      Verdict `json:"verdict" dynamodbav:"verdict"`
-	CreatedAt    string  `json:"createdat" dynamodbav:"createdat"`
+	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
+	UserId       string `json:"userid" dynamodbav:"userid"`
+	Condition    string `json:"condition" dynamodbav:"condition"`
+	CreatedAt    string `json:"createdat" dynamodbav:"createdat"`
 }
 
-type Verdict string
-
-const (
-	Correct   Verdict = "correct"
-	Incorrect Verdict = "incorrect"
-	Undecided Verdict = "undecided"
-)
-
-type Judge struct {
-	JudgeId      string  `json:"judgeid" dynamodbav:"judgeid"`
-	PredictionId string  `json:"predictionid" dynamodbav:"predictionid"`
-	UserId       string  `json:"userid" dynamodbav:"userid"`
-	Verdict      Verdict `json:"verdict" dynamodbav:"verdict"`
+type Voter struct {
+	VoterId      string `json:"voterid" dynamodbav:"voterid"`
+	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
+	UserId       string `json:"userid" dynamodbav:"userid"`
+	Verdict      bool   `json:"verdict" dynamodbav:"verdict"`
 }
 
 type ResponseData struct {
