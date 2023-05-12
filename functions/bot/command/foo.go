@@ -21,8 +21,7 @@ func FollowUp(ib lib.InteractionBody, rb []byte) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", lib.GetBotPk())
 
-	cl := &http.Client{}   // todo: declare global client?
-	res, err := cl.Do(req) // todo: can use _ ??????
+	res, err := lib.HttpCl.Do(req) // todo: cant use _ ??????
 	if err != nil {
 		return err
 	}
@@ -34,7 +33,7 @@ func FollowUp(ib lib.InteractionBody, rb []byte) error {
 
 func Foo(ib lib.InteractionBody) error {
 	r := lib.ResponseData{
-		Content: "ree",
+		Content: "bar",
 	}
 	rj, err := json.Marshal(r)
 	if err != nil {

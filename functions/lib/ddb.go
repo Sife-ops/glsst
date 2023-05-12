@@ -51,6 +51,8 @@ func EntityToMap(e Entity) map[string]types.AttributeValue {
 		panic(err)
 	}
 
+	m["_entity"] = &types.AttributeValueMemberS{Value: e.GetEntitySchema().Entity}
+
 	// indexes
 	r := reflect.ValueOf(e)
 	for _, index := range e.GetEntitySchema().Indexes {

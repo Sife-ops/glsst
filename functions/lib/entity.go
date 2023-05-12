@@ -7,6 +7,8 @@ type User struct {
 	// Sk     string `dynamodbav:"sk"`
 	// Gsi1pk string `dynamodbav:"gsi1pk"`
 	// Gsi1sk string `dynamodbav:"gsi1sk"`
+	// Gsi2pk string `dynamodbav:"gsi2pk"`
+	// Gsi2sk string `dynamodbav:"gsi2sk"`
 
 	UserId           string `json:"id" dynamodbav:"userid"`
 	Username         string `json:"username" dynamodbav:"username"`
@@ -47,16 +49,26 @@ type InteractionBody struct {
 }
 
 type Prediction struct {
-	// Pk     string `dynamodbav:"pk"` // todo: delete?
-	// Sk     string `dynamodbav:"sk"`
-	// Gsi1pk string `dynamodbav:"gsi1pk"`
-	// Gsi1sk string `dynamodbav:"gsi1sk"`
+	PredictionId string  `json:"predictionid" dynamodbav:"predictionid"`
+	UserId       string  `json:"userid" dynamodbav:"userid"`
+	Condition    string  `json:"condition" dynamodbav:"condition"`
+	Verdict      Verdict `json:"verdict" dynamodbav:"verdict"`
+	CreatedAt    string  `json:"createdat" dynamodbav:"createdat"`
+}
 
-	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
-	UserId       string `json:"userid" dynamodbav:"userid"`
-	Condition    string `json:"condition" dynamodbav:"condition"`
-	Verdict      string `json:"verdict" dynamodbav:"verdict"`
-	CreatedAt    string `json:"createdat" dynamodbav:"createdat"`
+type Verdict string
+
+const (
+	Correct   Verdict = "correct"
+	Incorrect Verdict = "incorrect"
+	Undecided Verdict = "undecided"
+)
+
+type Judge struct {
+	JudgeId      string  `json:"judgeid" dynamodbav:"judgeid"`
+	PredictionId string  `json:"predictionid" dynamodbav:"predictionid"`
+	UserId       string  `json:"userid" dynamodbav:"userid"`
+	Verdict      Verdict `json:"verdict" dynamodbav:"verdict"`
 }
 
 type ResponseData struct {

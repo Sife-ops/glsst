@@ -10,14 +10,18 @@ import (
 )
 
 func Handler(request events.APIGatewayProxyRequest) error {
-	var interactionBody lib.InteractionBody
-	if err := json.Unmarshal([]byte(request.Body), &interactionBody); err != nil {
+	var ib lib.InteractionBody
+	if err := json.Unmarshal([]byte(request.Body), &ib); err != nil {
 		return err
 	}
 
-	switch interactionBody.Data.Name {
+	switch ib.Data.Name {
 	case "foo":
-		return command.Foo(interactionBody)
+		return command.Foo(ib)
+	case "create":
+		return command.Create(ib)
+	default:
+		// todo: new error
 	}
 
 	// u := lib.User{

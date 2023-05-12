@@ -13,6 +13,7 @@ require (
 	github.com/aws/constructs-go/constructs/v10 v10.1.91
 	github.com/aws/jsii-runtime-go v1.65.1
 	github.com/davecgh/go-spew v1.1.1
+	github.com/oklog/ulid/v2 v2.1.0
 )
 
 require (
