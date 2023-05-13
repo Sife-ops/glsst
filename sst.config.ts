@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst";
-import { Api, Function, Table } from "sst/constructs";
+import { Api, Function, Table, StaticSite } from "sst/constructs";
 
 const { BOT_PUBLIC_KEY, BOT_APP_ID } = process.env;
 
@@ -97,9 +97,19 @@ export default {
         },
       });
 
+      const site = new StaticSite(stack, "site", {
+        path: "workspaces/web",
+        buildCommand: "npm run build",
+        buildOutput: "dist",
+        environment: {
+          VITE_API_URL: api.url,
+        },
+      });
+
       stack.addOutputs({
         ApiEndpoint: api.url,
         Table: table.tableName,
+        Site: site.url,
       });
     });
   },
