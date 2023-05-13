@@ -20,8 +20,8 @@ func Mnemonic() (string, error) {
 }
 
 // https://github.com/aws/aws-sdk-go/issues/3385
-func InvokeConsumer(ib InteractionBody) error {
-	bodyBytes, _ := json.Marshal(ib) // todo: pass request.Body directly
+func InvokeConsumer(b InteractionBody) error {
+	bodyBytes, _ := json.Marshal(b)
 	payload := struct{ Body string }{Body: string(bodyBytes)}
 	payloadBytes, _ := json.Marshal(payload)
 

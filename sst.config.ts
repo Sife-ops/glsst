@@ -101,6 +101,7 @@ export default {
           BOT_APP_ID: BOT_APP_ID || "REE",
           BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
           MNEMONIC_FN: mnemonicFn.functionName,
+          SITE_URL: site.url || "http://localhost:5173",
           TABLE_NAME: table.tableName,
         },
       });

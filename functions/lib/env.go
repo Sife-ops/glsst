@@ -18,7 +18,6 @@ func getEnvFac(s string) func() string {
 	}
 }
 
-// todo: use these functions
 var GetBotAppId = getEnvFac("BOT_APP_ID")
 var GetBotPk = getEnvFac("BOT_PUBLIC_KEY")
 var GetConsumerFn = getEnvFac("CONSUMER_FN")

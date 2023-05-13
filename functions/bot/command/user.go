@@ -10,7 +10,12 @@ func User(ib lib.InteractionBody) error {
 	fmt.Println(infoUser)
 
 	return ib.FollowUp(lib.ResponseData{
-		// todo: web url
-		Content: "User",
+		// todo: user details
+		Embeds: []lib.Embed{
+			{
+				Title: "URL",
+				Url:   fmt.Sprintf("%s/user/%s", lib.GetSiteUrl(), ib.Member.User.UserId),
+			},
+		},
 	})
 }
