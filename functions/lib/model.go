@@ -1,8 +1,8 @@
 package lib
 
 const (
-	Gsi1 IndexName = "gsi1"
-	Gsi2 IndexName = "gsi2"
+	Gsi1 IndexName = "gsi1" // User
+	Gsi2 IndexName = "gsi2" // Prediction
 )
 
 // todo: can't use pointer???

@@ -1,7 +1,6 @@
 package command
 
 import (
-	"encoding/json"
 	"fmt"
 	"glsst/functions/lib"
 	"time"
@@ -15,21 +14,21 @@ func Create(ib lib.InteractionBody) error {
 		return err
 	}
 
-	// todo: use goroutine for puts?
+	// todo: use goroutine?
 	if _, err := lib.Put(lib.Prediction{
 		PredictionId: m,
 		UserId:       ib.Member.User.UserId,
-		Condition:    condition.Value,
+		Condition:    condition.Value.(string),
 		CreatedAt:    time.Now().Format(time.RFC3339),
 	}); err != nil {
 		return err
 	}
 
-	r := lib.ResponseData{
+	return ib.FollowUp(lib.ResponseData{
 		Embeds: []lib.Embed{
 			{
 				Title:       "New Prediction",
-				Description: condition.Value,
+				Description: condition.Value.(string),
 				Fields: []lib.Field{
 					{
 						Name:   "By",
@@ -44,11 +43,5 @@ func Create(ib lib.InteractionBody) error {
 				},
 			},
 		},
-	}
-	rj, err := json.Marshal(r)
-	if err != nil {
-		return err
-	}
-
-	return FollowUp(ib, rj)
+	})
 }

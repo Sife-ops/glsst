@@ -1,2 +1,3 @@
-export * from "./foo";
-export * from "./new"
+export * from "./vote";
+// export * from "./foo";
+// export * from "./new"

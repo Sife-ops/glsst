@@ -17,9 +17,9 @@ type Member struct {
 }
 
 type Option struct {
-	Name  string `json:"name"`
-	Type  int    `json:"type"`
-	Value string `json:"value"`
+	Name  string      `json:"name"`
+	Type  int         `json:"type"`
+	Value interface{} `json:"value"`
 }
 
 type InteractionData struct {
@@ -54,14 +54,14 @@ type Voter struct {
 	VoterId      string `json:"voterid" dynamodbav:"voterid"`
 	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
 	UserId       string `json:"userid" dynamodbav:"userid"`
-	Verdict      bool   `json:"verdict" dynamodbav:"verdict"`
+	Vote         bool   `json:"vote" dynamodbav:"vote"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 type ResponseBody struct {
 	Type int          `json:"type"`
-	Data ResponseData `json:"data"` // todo: embed data
+	Data ResponseData `json:"data"`
 }
 
 type ResponseData struct {
