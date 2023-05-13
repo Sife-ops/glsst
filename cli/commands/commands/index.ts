@@ -1,4 +1,5 @@
 // export * from "./vote";
-export * from "./info";
+// export * from "./user";
+export * from "./prediction";
 // export * from "./foo";
-// export * from "./new"
+// export * from "./create"

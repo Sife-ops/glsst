@@ -46,51 +46,51 @@ func Vote(ib lib.InteractionBody) error {
 		return err
 	}
 
-	if len(qq.Items) < 1 {
-		if _, err := lib.Put(lib.Voter{
-			VoterId:      ulid.Make().String(),
-			PredictionId: pid,
-			UserId:       memberId,
-			Vote:         vote, // todo: tristate
-		}); err != nil {
-			return err
-		}
-
-		var fa string
-		var color int
-		if vote {
-			fa = "in favor of"
-			color = 65280
-		} else {
-			fa = "against"
-			color = 16711680
-		}
-
+	if len(qq.Items) > 0 {
 		return ib.FollowUp(lib.ResponseData{
-			Content: "voted",
-			Embeds: []lib.Embed{
-				{
-					Title:       "Vote",
-					Color:       color,
-					Description: fmt.Sprintf("<@%s> voted %s <@%s>'s prediction:", memberId, fa, p.UserId),
-					Fields: []lib.Field{
-						{
-							Name:   "Condition(s)",
-							Value:  p.Condition,
-							Inline: false,
-						},
-						{
-							Name:   "ID",
-							Value:  p.PredictionId,
-							Inline: false,
-						},
-					},
-				},
-			},
+			Content: fmt.Sprintf("<@%s> tried to vote twice.", memberId),
 		})
 	}
 
+	if _, err := lib.Put(lib.Voter{
+		VoterId:      ulid.Make().String(),
+		PredictionId: pid,
+		UserId:       memberId,
+		Vote:         vote, // todo: tristate
+	}); err != nil {
+		return err
+	}
+
+	var fa string
+	var color int
+	if vote {
+		fa = "in favor of"
+		color = 65280
+	} else {
+		fa = "against"
+		color = 16711680
+	}
+
 	return ib.FollowUp(lib.ResponseData{
-		Content: fmt.Sprintf("<@%s> tried to vote twice.", memberId),
+		Content: "voted",
+		Embeds: []lib.Embed{
+			{
+				Title:       "Vote",
+				Color:       color,
+				Description: fmt.Sprintf("<@%s> voted %s <@%s>'s prediction:", memberId, fa, p.UserId),
+				Fields: []lib.Field{
+					{
+						Name:   "Condition(s)",
+						Value:  p.Condition,
+						Inline: false,
+					},
+					{
+						Name:   "ID",
+						Value:  p.PredictionId,
+						Inline: false,
+					},
+				},
+			},
+		},
 	})
 }

@@ -1,6 +1,5 @@
-export const info = {
-  name: 'info',
-  type: 1,
+export const user = {
+  name: 'user',
   description: 'Get user info.',
   options: [
     {

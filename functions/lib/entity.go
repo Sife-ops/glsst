@@ -44,17 +44,19 @@ type User struct {
 }
 
 type Prediction struct {
-	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
-	UserId       string `json:"userid" dynamodbav:"userid"`
-	Condition    string `json:"condition" dynamodbav:"condition"`
-	CreatedAt    string `json:"createdat" dynamodbav:"createdat"`
+	PredictionId    string `json:"predictionId" dynamodbav:"predictionid"`
+	UserId          string `json:"userId" dynamodbav:"userid"`
+	Condition       string `json:"condition" dynamodbav:"condition"`
+	CreatedAt       string `json:"createdAt" dynamodbav:"createdat"`
+	ImportCreatedAt int    `json:"created_at"` // todo: DELETE
 }
 
 type Voter struct {
-	VoterId      string `json:"voterid" dynamodbav:"voterid"`
-	PredictionId string `json:"predictionid" dynamodbav:"predictionid"`
-	UserId       string `json:"userid" dynamodbav:"userid"`
+	VoterId      string `json:"voterId" dynamodbav:"voterid"`
+	PredictionId string `json:"predictionId" dynamodbav:"predictionid"`
+	UserId       string `json:"userId" dynamodbav:"userid"`
 	Vote         bool   `json:"vote" dynamodbav:"vote"`
+	Verdict      string `json:"verdict"` // todo: DELETE
 }
 
 ////////////////////////////////////////////////////////////////////////////////

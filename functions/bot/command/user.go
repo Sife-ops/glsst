@@ -5,7 +5,7 @@ import (
 	"glsst/functions/lib"
 )
 
-func Info(ib lib.InteractionBody) error {
+func User(ib lib.InteractionBody) error {
 	infoUser := ib.Data.Options[0].Value.(string)
 	fmt.Println(infoUser)
 

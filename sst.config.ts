@@ -58,6 +58,14 @@ export default {
         },
       });
 
+      const importFn = new Function(stack, "importFn", {
+        handler: "functions/import/main.go",
+        bind: [table],
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      });
+
       const mnemonicFn = new Function(stack, "mnemonicFn", {
         handler: "workspaces/functions/mnemonic.handler",
         runtime: "nodejs",

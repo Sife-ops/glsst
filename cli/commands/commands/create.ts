@@ -1,4 +1,4 @@
-export const prediction = {
+export const create = {
   name: "create",
   description: "Make a prediction.",
   options: [

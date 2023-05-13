@@ -23,7 +23,7 @@ func Handler(request events.APIGatewayProxyRequest) error {
 	case "vote":
 		return command.Vote(ib)
 	case "info":
-		return command.Info(ib)
+		return command.User(ib)
 	}
 
 	return nil
