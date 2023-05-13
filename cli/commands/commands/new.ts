@@ -8,11 +8,5 @@ export const prediction = {
       type: 3,
       required: true,
     },
-    {
-      name: "judge",
-      description: "The default judge for the prediction.",
-      type: 6,
-      required: true,
-    },
   ],
 };

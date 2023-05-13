@@ -22,9 +22,8 @@ func Handler(request events.APIGatewayProxyRequest) error {
 		return command.Create(ib)
 	case "vote":
 		return command.Vote(ib)
-		// case "cancel":
-		// default:
-		// 	todo: new error
+	case "info":
+		return command.Info(ib)
 	}
 
 	return nil

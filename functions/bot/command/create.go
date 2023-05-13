@@ -7,7 +7,7 @@ import (
 )
 
 func Create(ib lib.InteractionBody) error {
-	condition := ib.Data.Options[0]
+	condition := ib.Data.Options[0].Value.(string)
 
 	m, err := lib.Mnemonic()
 	if err != nil {
@@ -18,7 +18,7 @@ func Create(ib lib.InteractionBody) error {
 	if _, err := lib.Put(lib.Prediction{
 		PredictionId: m,
 		UserId:       ib.Member.User.UserId,
-		Condition:    condition.Value.(string),
+		Condition:    condition,
 		CreatedAt:    time.Now().Format(time.RFC3339),
 	}); err != nil {
 		return err
@@ -28,7 +28,7 @@ func Create(ib lib.InteractionBody) error {
 		Embeds: []lib.Embed{
 			{
 				Title:       "New Prediction",
-				Description: condition.Value.(string),
+				Description: condition,
 				Fields: []lib.Field{
 					{
 						Name:   "By",
