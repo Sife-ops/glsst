@@ -71,26 +71,14 @@ export default {
         runtime: "nodejs",
       });
 
-      const consumerFn = new Function(stack, "consumerFn", {
-        handler: "functions/bot/consumer/main.go",
-        bind: [table, mnemonicFn],
-        environment: {
-          BOT_APP_ID: BOT_APP_ID || "REE",
-          BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
-          TABLE_NAME: table.tableName,
-          MNEMONIC_FN: mnemonicFn.functionName,
-        },
-      });
-
       const api = new Api(stack, "api", {
         routes: {
-          "POST /bot": {
+          "POST /user": {
             function: {
-              handler: "functions/bot/receiver/main.go",
-              bind: [consumerFn, table],
+              handler: "functions/rest/user/main.go",
+              bind: [table],
               environment: {
-                BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
-                CONSUMER_FN: consumerFn.functionName,
+                TABLE_NAME: table.tableName,
               },
             },
           },
@@ -103,6 +91,32 @@ export default {
         buildOutput: "dist",
         environment: {
           VITE_API_URL: api.url,
+        },
+      });
+
+      const consumerFn = new Function(stack, "consumerFn", {
+        handler: "functions/bot/consumer/main.go",
+        bind: [table, mnemonicFn],
+        environment: {
+          BOT_APP_ID: BOT_APP_ID || "REE",
+          BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
+          MNEMONIC_FN: mnemonicFn.functionName,
+          TABLE_NAME: table.tableName,
+        },
+      });
+
+      api.addRoutes(stack, {
+        "POST /bot": {
+          function: {
+            handler: "functions/bot/receiver/main.go",
+            bind: [consumerFn, table],
+            environment: {
+              BOT_PUBLIC_KEY: BOT_PUBLIC_KEY || "REE",
+              CONSUMER_FN: consumerFn.functionName,
+              SITE_URL: site.url || "http://localhost:5173",
+              TABLE_NAME: table.tableName,
+            },
+          },
         },
       });
 

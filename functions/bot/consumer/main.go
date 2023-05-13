@@ -10,20 +10,34 @@ import (
 )
 
 func Handler(request events.APIGatewayProxyRequest) error {
-	var ib lib.InteractionBody
-	if err := json.Unmarshal([]byte(request.Body), &ib); err != nil {
+	var b lib.InteractionBody
+	if err := json.Unmarshal([]byte(request.Body), &b); err != nil {
 		return err
 	}
 
-	switch ib.Data.Name {
+	// onboard user
+	// todo: compare and update
+	ul, err := lib.Query(lib.User{
+		UserId: b.Member.User.UserId,
+	})
+	if err != nil {
+		panic(err)
+	}
+	if len(ul.Items) < 1 {
+		if _, err := lib.Put(b.Member.User); err != nil {
+			panic(err)
+		}
+	}
+
+	switch b.Data.Name {
 	case "foo":
-		return command.Foo(ib)
+		return command.Foo(b)
 	case "create":
-		return command.Create(ib)
+		return command.Create(b)
 	case "vote":
-		return command.Vote(ib)
-	case "info":
-		return command.User(ib)
+		return command.Vote(b)
+	case "user":
+		return command.User(b)
 	}
 
 	return nil

@@ -39,16 +39,17 @@ type User struct {
 	DisplayName      string `json:"display_name" dynamodbav:"displayname"`
 	GlobalName       string `json:"global_name" dynamodbav:"globalname"`
 	Avatar           string `json:"avatar" dynamodbav:"avatar"`
-	AvatarDecoration any    `json:"avatar_decoration" dynamodbav:"omitempty"`
-	PublicFlags      int    `json:"public_flags" dynamodbav:"omitempty"`
+	AvatarDecoration any    `json:"avatar_decoration" dynamodbav:"-"`
+	PublicFlags      int    `json:"public_flags" dynamodbav:"-"`
 }
 
 type Prediction struct {
-	PredictionId    string `json:"predictionId" dynamodbav:"predictionid"`
-	UserId          string `json:"userId" dynamodbav:"userid"`
-	Condition       string `json:"condition" dynamodbav:"condition"`
-	CreatedAt       string `json:"createdAt" dynamodbav:"createdat"`
-	ImportCreatedAt int    `json:"created_at"` // todo: DELETE
+	PredictionId    string  `json:"predictionId" dynamodbav:"predictionid"`
+	UserId          string  `json:"userId" dynamodbav:"userid"`
+	Condition       string  `json:"condition" dynamodbav:"condition"`
+	CreatedAt       string  `json:"createdAt" dynamodbav:"createdat"`
+	Voters          []Voter `json:"voters" dynamodbav:"-"`
+	ImportCreatedAt int     `json:"created_at" dynamodbav:"-"` // todo: DELETE
 }
 
 type Voter struct {
@@ -56,7 +57,7 @@ type Voter struct {
 	PredictionId string `json:"predictionId" dynamodbav:"predictionid"`
 	UserId       string `json:"userId" dynamodbav:"userid"`
 	Vote         bool   `json:"vote" dynamodbav:"vote"`
-	Verdict      string `json:"verdict"` // todo: DELETE
+	Verdict      string `json:"verdict" dynamodbav:"-"` // todo: DELETE
 }
 
 ////////////////////////////////////////////////////////////////////////////////

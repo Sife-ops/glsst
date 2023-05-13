@@ -104,7 +104,8 @@ func Query(e Entity, i ...IndexName) (*dynamodb.QueryOutput, error) {
 	}
 	pk := e.GetEntitySchema().Indexes[ii].PartitionKey.Field
 	sk := e.GetEntitySchema().Indexes[ii].SortKey.Field
-	ddbq.KeyConditionExpression = aws.String(pk + " = :" + pk + " and " + sk + " = :" + sk)
+	// ddbq.KeyConditionExpression = aws.String(pk + " = :" + pk + " and " + sk + " = :" + sk)
+	ddbq.KeyConditionExpression = aws.String(pk + " = :" + pk + " and begins_with(" + sk + ", :" + sk + ")")
 
 	m := EntityToMap(e)
 	ddbq.ExpressionAttributeValues = map[string]types.AttributeValue{

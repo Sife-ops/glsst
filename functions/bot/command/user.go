@@ -11,6 +11,6 @@ func User(ib lib.InteractionBody) error {
 
 	return ib.FollowUp(lib.ResponseData{
 		// todo: web url
-		Content: "Info",
+		Content: "User",
 	})
 }
