@@ -9,6 +9,7 @@ import (
 )
 
 func Vote(ib lib.InteractionBody) error {
+	memberId := ib.Member.User.UserId
 	pid := ib.Data.Options[0].Value.(string)
 	vote := ib.Data.Options[1].Value.(bool)
 
@@ -22,22 +23,23 @@ func Vote(ib lib.InteractionBody) error {
 
 	if len(q.Items) < 1 {
 		return ib.FollowUp(lib.ResponseData{
-			Content: "prediction does not exist",
+			Content: fmt.Sprintf("<@%s> voted on a nonexistent prediction.", memberId),
 		})
 	}
 
 	// 2) no self vote
-	var p []lib.Prediction
-	attributevalue.UnmarshalListOfMaps(q.Items, &p)
-	if p[0].UserId == ib.Member.User.UserId {
+	var pl []lib.Prediction
+	attributevalue.UnmarshalListOfMaps(q.Items, &pl)
+	p := pl[0]
+	if p.UserId == memberId {
 		return ib.FollowUp(lib.ResponseData{
-			Content: fmt.Sprintf("<@%s> tried to vote on their own prediction.", ib.Member.User.UserId),
+			Content: fmt.Sprintf("<@%s> tried to vote on their own prediction.", memberId),
 		})
 	}
 
 	// 3) insert vote
 	qq, err := lib.Query(lib.Voter{
-		UserId:       ib.Member.User.UserId,
+		UserId:       memberId,
 		PredictionId: pid,
 	}, lib.Gsi1)
 	if err != nil {
@@ -48,25 +50,47 @@ func Vote(ib lib.InteractionBody) error {
 		if _, err := lib.Put(lib.Voter{
 			VoterId:      ulid.Make().String(),
 			PredictionId: pid,
-			UserId:       ib.Member.User.UserId,
+			UserId:       memberId,
 			Vote:         vote, // todo: tristate
 		}); err != nil {
 			return err
 		}
 
+		var fa string
+		var color int
+		if vote {
+			fa = "in favor of"
+			color = 65280
+		} else {
+			fa = "against"
+			color = 16711680
+		}
+
 		return ib.FollowUp(lib.ResponseData{
 			Content: "voted",
+			Embeds: []lib.Embed{
+				{
+					Title:       "Vote",
+					Color:       color,
+					Description: fmt.Sprintf("<@%s> voted %s <@%s>'s prediction:", memberId, fa, p.UserId),
+					Fields: []lib.Field{
+						{
+							Name:   "Condition(s)",
+							Value:  p.Condition,
+							Inline: false,
+						},
+						{
+							Name:   "ID",
+							Value:  p.PredictionId,
+							Inline: false,
+						},
+					},
+				},
+			},
 		})
 	}
 
-	// // spew.Dump(qq)
-	// // todo: DEBUG
-	// fmt.Println(len(qq.Items))
-	// return ib.FollowUp(lib.ResponseData{
-	// 	Content: "vote",
-	// })
-
 	return ib.FollowUp(lib.ResponseData{
-		Content: "already voted",
+		Content: fmt.Sprintf("<@%s> tried to vote twice.", memberId),
 	})
 }
