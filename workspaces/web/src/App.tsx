@@ -41,16 +41,20 @@ const User: React.FC = () => {
   }, []);
 
   if (res) {
+    const user = res.user;
+
     return (
       <div>
         <div>
-          <div>user</div>
           <div>
-            <div>avatar: {res.user.avatar}</div>
-            <div>username: {res.user.id}</div>
-            <div>discriminator: {res.user.discriminator}</div>
-            <div>display_name: {res.user.display_name}</div>
-            <div>global_name: {res.user.global_name}</div>
+            {user.username}#{user.discriminator}'s predictos
+          </div>
+          <div>
+            <div>avatar: {user.avatar}</div>
+            <div>username: {user.username}</div>
+            <div>discriminator: {user.discriminator}</div>
+            <div>display_name: {user.display_name}</div>
+            <div>global_name: {user.global_name}</div>
           </div>
         </div>
         <div>

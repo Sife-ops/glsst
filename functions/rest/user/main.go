@@ -9,9 +9,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 )
 
-type Response struct {
+type response struct {
 	User        lib.User         `json:"user"`
 	Predictions []lib.Prediction `json:"predictions"`
+}
+
+type predictionVotersChan struct {
+	Voters []lib.Voter
+	Index  int
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -24,7 +29,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	// fetch user
 	ulc := make(chan []lib.User)
-	go func(ulc chan []lib.User) {
+	go func() {
 		q, err := lib.Query(lib.User{
 			UserId: b.UserId,
 		})
@@ -36,11 +41,11 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		attributevalue.UnmarshalListOfMaps(q.Items, &ul)
 
 		ulc <- ul
-	}(ulc)
+	}()
 
 	// fetch predictions
 	plc := make(chan []lib.Prediction)
-	go func(plc chan []lib.Prediction) {
+	go func() {
 		q, err := lib.Query(lib.Prediction{
 			UserId: b.UserId,
 		}, lib.Gsi1)
@@ -52,9 +57,10 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		attributevalue.UnmarshalListOfMaps(q.Items, &pl)
 
 		plc <- pl
-	}(plc)
+	}()
 
 	ul := <-ulc
+	close(ulc)
 	var u lib.User
 	if len(ul) < 1 {
 		u = lib.User{}
@@ -64,31 +70,37 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	}
 
 	pl := <-plc
+	close(plc)
 
 	// fetch prediction voters
-	vlc := make(chan []lib.Voter, len(pl))
-	for _, p := range pl {
-		go func(aa chan []lib.Voter, p lib.Prediction) {
-			var vl []lib.Voter
-
+	// todo: better concurrency
+	vlc := make(chan predictionVotersChan, len(pl))
+	for i, p := range pl {
+		go func(i int, p lib.Prediction) {
 			q, err := lib.Query(lib.Voter{
 				PredictionId: p.PredictionId,
 			}, lib.Gsi2)
 			if err != nil {
 				panic(err)
 			}
+			var vl []lib.Voter
 			attributevalue.UnmarshalListOfMaps(q.Items, &vl)
-
-			vlc <- vl
-		}(vlc, p)
+			vlc <- predictionVotersChan{
+				Voters: vl,
+				Index:  i,
+			}
+		}(i, p)
 	}
 	for i := range pl {
-		pl[i].Voters = <-vlc
+		v := <-vlc
+		pl[v.Index].Voters = v.Voters
+		if i == len(pl)-1 {
+			close(vlc)
+		}
 	}
-	close(vlc)
 
 	// response
-	r := Response{
+	r := response{
 		User:        u,
 		Predictions: pl,
 	}
