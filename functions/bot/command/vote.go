@@ -8,10 +8,10 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-func Vote(ib lib.InteractionBody) error {
-	memberId := ib.Member.User.UserId
-	pid := ib.Data.Options[0].Value.(string)
-	vote := ib.Data.Options[1].Value.(bool)
+func Vote(b lib.InteractionBody) error {
+	memberId := b.Member.User.UserId
+	pid := b.Data.Options[0].Value.(string)
+	vote := b.Data.Options[1].Value.(bool)
 
 	// 1) prediction must exist
 	q, err := lib.Query(lib.Prediction{
@@ -22,7 +22,7 @@ func Vote(ib lib.InteractionBody) error {
 	}
 
 	if len(q.Items) < 1 {
-		return ib.FollowUp(lib.ResponseData{
+		return b.FollowUp(lib.ResponseData{
 			Content: fmt.Sprintf("<@%s> voted on a nonexistent prediction.", memberId),
 		})
 	}
@@ -32,7 +32,7 @@ func Vote(ib lib.InteractionBody) error {
 	attributevalue.UnmarshalListOfMaps(q.Items, &pl)
 	p := pl[0]
 	if p.UserId == memberId {
-		return ib.FollowUp(lib.ResponseData{
+		return b.FollowUp(lib.ResponseData{
 			Content: fmt.Sprintf("<@%s> tried to vote on their own prediction.", memberId),
 		})
 	}
@@ -47,7 +47,7 @@ func Vote(ib lib.InteractionBody) error {
 	}
 
 	if len(qq.Items) > 0 {
-		return ib.FollowUp(lib.ResponseData{
+		return b.FollowUp(lib.ResponseData{
 			Content: fmt.Sprintf("<@%s> tried to vote twice.", memberId),
 		})
 	}
@@ -71,7 +71,7 @@ func Vote(ib lib.InteractionBody) error {
 		color = 16711680
 	}
 
-	return ib.FollowUp(lib.ResponseData{
+	return b.FollowUp(lib.ResponseData{
 		Content: "voted",
 		Embeds: []lib.Embed{
 			{

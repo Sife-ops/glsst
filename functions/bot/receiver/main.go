@@ -9,15 +9,24 @@ import (
 )
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-	var ib lib.InteractionBody
-	if err := json.Unmarshal([]byte(request.Body), &ib); err != nil {
-		panic("unmarshal")
+	var b lib.InteractionBody
+	if err := json.Unmarshal([]byte(request.Body), &b); err != nil {
+		panic("unmarshal") // todo: send "oops" to discord
 	}
 
-	switch ib.Type {
+	switch b.Type {
 	case 1:
 		{
-			switch lib.VerifyInteraction(request) {
+			verified, err := lib.VerifyInteraction(lib.VerifyInteractionInput{
+				PublicKey: lib.GetBotPk(),
+				Timestamp: request.Headers["x-signature-timestamp"],
+				Signature: request.Headers["x-signature-ed25519"],
+				Body:      request.Body,
+			})
+			if err != nil {
+				panic(err)
+			}
+			switch verified {
 			case true:
 				{
 					return events.APIGatewayProxyResponse{
@@ -35,7 +44,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		}
 	default:
 		{
-			if err := lib.InvokeConsumer(ib); err != nil {
+			if err := lib.InvokeConsumer(b); err != nil {
 				panic(err)
 			}
 

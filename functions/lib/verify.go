@@ -4,37 +4,54 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
-
-	"github.com/aws/aws-lambda-go/events"
 )
 
+type VerifyBotError struct {
+	Message string
+}
+
+func (e *VerifyBotError) Error() string {
+	return e.Message
+}
+
+type VerifyInteractionInput struct {
+	PublicKey string
+	Timestamp string
+	Signature string
+	Body      string
+}
+
 // https://github.com/bwmarrin/discordgo/blob/v0.27.1/interactions.go#L572
-func VerifyInteraction(request events.APIGatewayV2HTTPRequest) bool {
-	key, err := hex.DecodeString(GetBotPk())
+func VerifyInteraction(request VerifyInteractionInput) (bool, error) {
+	key, err := hex.DecodeString(request.PublicKey)
 	if err != nil {
-		return false
+		return false, &VerifyBotError{Message: "failed to decode public key hex"} // todo: return error?
 	}
 
-	timestamp := request.Headers["x-signature-timestamp"]
+	timestamp := request.Timestamp
 	if timestamp == "" {
-		return false
+		return false, &VerifyBotError{Message: "missing signature timestamp"}
 	}
 
-	signature := request.Headers["x-signature-ed25519"]
+	signature := request.Signature
 	if signature == "" {
-		return false
+		return false, &VerifyBotError{Message: "missing signature"}
 	}
 	sig, err := hex.DecodeString(signature)
 	if err != nil {
-		return false
+		return false, &VerifyBotError{Message: "failed to decude signature hex"}
 	}
 	if len(sig) != 64 {
-		return false
+		return false, &VerifyBotError{Message: "invalid signature length"}
 	}
 
 	var msg bytes.Buffer
 	msg.WriteString(timestamp)
 	msg.WriteString(request.Body)
 
-	return ed25519.Verify(key, msg.Bytes(), sig)
+	if ed25519.Verify(key, msg.Bytes(), sig) {
+		return true, nil
+	}
+
+	return false, nil
 }
