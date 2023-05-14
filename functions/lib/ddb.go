@@ -3,6 +3,7 @@ package lib
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -89,6 +90,12 @@ func BaseQueryInput() *dynamodb.QueryInput {
 	}
 }
 
+func BaseUpdateItemInput() *dynamodb.UpdateItemInput {
+	return &dynamodb.UpdateItemInput{
+		TableName: aws.String(GetTableName()),
+	}
+}
+
 func Query(e Entity, i ...IndexName) (*dynamodb.QueryOutput, error) {
 	ddbq := BaseQueryInput()
 
@@ -104,7 +111,6 @@ func Query(e Entity, i ...IndexName) (*dynamodb.QueryOutput, error) {
 	}
 	pk := e.GetEntitySchema().Indexes[ii].PartitionKey.Field
 	sk := e.GetEntitySchema().Indexes[ii].SortKey.Field
-	// ddbq.KeyConditionExpression = aws.String(pk + " = :" + pk + " and " + sk + " = :" + sk)
 	ddbq.KeyConditionExpression = aws.String(pk + " = :" + pk + " and begins_with(" + sk + ", :" + sk + ")")
 
 	m := EntityToMap(e)
@@ -112,10 +118,63 @@ func Query(e Entity, i ...IndexName) (*dynamodb.QueryOutput, error) {
 		":" + pk: m[pk],
 		":" + sk: m[sk],
 	}
-	// 	// ExpressionAttributeNames: map[string]string{
-	// 	// },
+	// todo: expression attribute names
+	// ExpressionAttributeNames: map[string]string{
+	// },
 
 	return DdbCl.Query(context.TODO(), ddbq)
+}
+
+// todo: add, subtrace
+func Update(e Entity, u map[string]interface{}) (*dynamodb.UpdateItemOutput, error) {
+	// key
+	em := EntityToMap(e)
+	pk := e.GetEntitySchema().Indexes[Primary].PartitionKey.Field
+	sk := e.GetEntitySchema().Indexes[Primary].SortKey.Field
+	ddbq := BaseUpdateItemInput()
+	ddbq.Key = map[string]types.AttributeValue{
+		pk: em[pk],
+		sk: em[sk],
+	}
+
+	um, err := attributevalue.MarshalMap(u)
+	if err != nil {
+		return nil, err
+	}
+
+	// update expression
+	var buf bytes.Buffer
+	buf.WriteString("SET")
+	var keys []string
+	for k := range um {
+		keys = append(keys, k)
+	}
+	for i, v := range keys {
+		switch {
+		case i < 1:
+			buf.WriteString(fmt.Sprintf(" #%s = :%s", v, v))
+		default:
+			buf.WriteString(fmt.Sprintf(", #%s = :%s", v, v))
+		}
+	}
+	ddbq.UpdateExpression = aws.String(buf.String())
+
+	// expression attribute names
+	ean := map[string]string{}
+	for k := range um {
+		ean["#"+k] = k
+	}
+	ddbq.ExpressionAttributeNames = ean
+
+	// expression attribute values
+	eav := map[string]types.AttributeValue{}
+	for k, v := range um {
+		eav[":"+k] = v
+	}
+	ddbq.ExpressionAttributeValues = eav
+
+	// update
+	return DdbCl.UpdateItem(context.TODO(), ddbq)
 }
 
 func Put(e Entity) (*dynamodb.PutItemOutput, error) {

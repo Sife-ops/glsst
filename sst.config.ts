@@ -68,7 +68,7 @@ export default {
 
       const mnemonicFn = new Function(stack, "mnemonicFn", {
         handler: "workspaces/functions/mnemonic.handler",
-        runtime: "nodejs",
+        runtime: "nodejs18.x",
       });
 
       const api = new Api(stack, "api", {

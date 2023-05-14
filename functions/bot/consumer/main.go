@@ -15,19 +15,7 @@ func Handler(request events.APIGatewayProxyRequest) error {
 		return err
 	}
 
-	// onboard user
-	// todo: compare and update
-	ul, err := lib.Query(lib.User{
-		UserId: b.Member.User.UserId,
-	})
-	if err != nil {
-		panic(err)
-	}
-	if len(ul.Items) < 1 {
-		if _, err := lib.Put(b.Member.User); err != nil {
-			panic(err)
-		}
-	}
+	lib.Onboard(b.Member.User)
 
 	switch b.Data.Name {
 	case "foo":

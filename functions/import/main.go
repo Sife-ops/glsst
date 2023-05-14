@@ -11,6 +11,7 @@ import (
 )
 
 type Event struct {
+	Users       []lib.User       `json:"users"`
 	Predictions []lib.Prediction `json:"predictions"`
 	Voters      []lib.Voter      `json:"voters"`
 }
@@ -21,11 +22,23 @@ func Handler(event Event) error {
 
 	var wg sync.WaitGroup
 
+	for _, u := range event.Users {
+		wg.Add(1)
+		go func(u lib.User) {
+			defer wg.Done()
+
+			fmt.Println("insert user", u.UserId)
+			if _, err := lib.Put(u); err != nil {
+				panic(err)
+			}
+		}(u)
+	}
+
 	for _, p := range event.Predictions {
 		wg.Add(1)
-
 		go func(p lib.Prediction) {
-			wg.Done()
+			defer wg.Done()
+
 			p.CreatedAt = time.UnixMilli(int64(p.ImportCreatedAt)).Format(time.RFC3339)
 			fmt.Println("insert prediction", p.PredictionId)
 			if _, err := lib.Put(p); err != nil {
@@ -38,7 +51,7 @@ func Handler(event Event) error {
 		wg.Add(1)
 
 		go func(v lib.Voter) {
-			wg.Done()
+			defer wg.Done()
 
 			switch v.Verdict {
 			case "correct":
