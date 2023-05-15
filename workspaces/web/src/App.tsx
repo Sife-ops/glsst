@@ -1,30 +1,37 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 import {
   BrowserRouter,
   Navigate,
   Route,
   Routes,
   useParams,
+  useNavigate,
 } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Prediction: React.FC<{ prediction: any }> = (p) => {
+  const voters = p.prediction.voters;
+
+  const percentage = (): number => {
+    const p = voters.filter((e: any) => e.vote).length / voters.length;
+    return p * 100;
+  };
+
   return (
     <div>
-      <div>prediction</div>
-      <div>
-        <div>predictionId: {p.prediction.predictionId}</div>
-        <div>condition: {p.prediction.condition}</div>
-        <div>createdAt: {p.prediction.createdAt}</div>
-        <div>concencus: </div>
-      </div>
+      <h2>
+        {p.prediction.predictionId}
+        {voters.length > 0 ? ` (${percentage()}%)` : ""}
+      </h2>
+      <div>condition(s): {p.prediction.condition}</div>
+      <div>made on: {p.prediction.createdAt}</div>
     </div>
   );
 };
 
 const User: React.FC = () => {
+  const nav = useNavigate();
   const p = useParams();
 
   const [res, setRes] = useState<any | null>(null);
@@ -36,8 +43,15 @@ const User: React.FC = () => {
         userId: p.userId,
       }),
     })
+      .then((res) => {
+        if (!res.ok) throw new Error("no");
+        return res;
+      })
       .then((res) => res.json())
-      .then((json) => setRes(json));
+      .then((json) => setRes(json))
+      .catch(() => {
+        nav("/error");
+      });
   }, []);
 
   if (res) {
@@ -46,16 +60,11 @@ const User: React.FC = () => {
     return (
       <div>
         <div>
-          <div>
+          {/* todo: avatar */}
+          {/* todo: display/global name */}
+          <h1>
             {user.username}#{user.discriminator}'s predictos
-          </div>
-          <div>
-            <div>avatar: {user.avatar}</div>
-            <div>username: {user.username}</div>
-            <div>discriminator: {user.discriminator}</div>
-            <div>display_name: {user.display_name}</div>
-            <div>global_name: {user.global_name}</div>
-          </div>
+          </h1>
         </div>
         <div>
           {res.predictions.map((e: any) => {

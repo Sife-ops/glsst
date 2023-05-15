@@ -4,9 +4,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 )
 
-func Onboard(u User) error {
+func Onboard(user User) error {
 	uq, err := Query(User{
-		UserId: u.UserId,
+		UserId: user.UserId,
 	})
 	if err != nil {
 		return err
@@ -14,7 +14,7 @@ func Onboard(u User) error {
 
 	switch len(uq.Items) < 1 {
 	case true:
-		if _, err := Put(u); err != nil {
+		if _, err := Put(user); err != nil {
 			return err
 		}
 	default:
@@ -25,11 +25,11 @@ func Onboard(u User) error {
 		u := ul[0]
 
 		switch {
-		case u.Avatar != u.Avatar:
+		case u.Avatar != user.Avatar:
 			fallthrough
-		case u.DisplayName != u.DisplayName:
+		case u.DisplayName != user.DisplayName:
 			fallthrough
-		case u.Username != u.Username:
+		case u.Username != user.Username:
 			if _, err := Update(u, map[string]interface{}{
 				"avatar":      u.Avatar,
 				"displayname": u.DisplayName,

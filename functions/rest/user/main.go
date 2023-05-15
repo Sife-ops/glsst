@@ -74,7 +74,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	// fetch prediction voters
 	// todo: better concurrency
-	vlc := make(chan predictionVotersChan, len(pl))
+	vlc := make(chan predictionVotersChan) // don't need buffer
 	for i, p := range pl {
 		go func(i int, p lib.Prediction) {
 			q, err := lib.Query(lib.Voter{
